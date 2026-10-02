@@ -1,4 +1,4 @@
-// Bind mounts start empty on TrueNAS. Seed once; preserve user configuration.
+// Persistent state mounts may start empty. Seed once; preserve user configuration.
 import { constants } from 'node:fs';
 import { chmod, copyFile, mkdir } from 'node:fs/promises';
 

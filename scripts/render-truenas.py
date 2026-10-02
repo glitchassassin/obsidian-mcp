@@ -6,7 +6,7 @@ from pathlib import Path
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--data-dir', required=True, help='Absolute NAS dataset path')
 parser.add_argument('--image-tag', required=True, help='Published sha-<commit> or version tag')
-parser.add_argument('--without-tunnel', action='store_true', help='Stage Sync/MCP before connector cutover')
+parser.add_argument('--without-tunnel', action='store_true', help='Omit cloudflared for setup or another transport')
 args = parser.parse_args()
 if not Path(args.data_dir).is_absolute(): parser.error('--data-dir must be absolute')
 if not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}', args.image_tag): parser.error('Invalid image tag')

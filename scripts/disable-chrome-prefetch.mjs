@@ -8,4 +8,4 @@ const statement = '            ensureChromeAvailable();';
 if (source.split(statement).length !== 2) {
   throw new Error('Desktop Commander Chrome-prefetch patch no longer matches exactly once');
 }
-writeFileSync(path, source.replace(statement, '            // bootlace: skip automatic Chrome download on MCP initialization.'));
+writeFileSync(path, source.replace(statement, '            // Skip automatic Chrome download on MCP initialization.'));

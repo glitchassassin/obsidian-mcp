@@ -1,16 +1,23 @@
-# Source and deployment notes
+# Security and privacy
 
-This is a deployment wrapper for the working bootlace v4 experiment. It is a targeted source spot-check and isolation design, not a comprehensive dependency audit.
+## Runtime boundaries
 
-- Desktop Commander `0.2.52`, reviewed source commit `c774c3b505de990219637ecdc9a830c8772fae9d`. The npm lockfile includes package integrity; this does not attest that the published package exactly matches the source checkout.
-- Official `obsidian-headless@0.0.14`, with its native SQLite dependency explicitly rebuilt. Auth tokens, encryption keys, database, and Sync logs stay in the Sync-only config dataset.
-- Supergateway built from reviewed commit `b5b9c85fdafe78be507ad4c5b057ba67bb7827aa`, using that source's lockfile. Its inbound authentication was added in [PR #286](https://github.com/supercorp-ai/supergateway/pull/286) after the published 4.1.0 release. Building this commit includes the feature; 4.1.0 silently ignores the new environment variable because it predates that feature.
-- Node `24.15.0-bookworm-slim` is pinned by multi-platform digest. Debian packages remain mutable. The workflow publishes only images that passed the runtime tests on AMD64.
+The Compose stack shares only `/vault` between Obsidian Headless Sync and Desktop Commander. Sync account credentials, encryption keys, database, and logs remain in its private `sync-config` mount. Sync uses a separate network from the MCP service and tunnel connector.
 
-Only `/vault` is shared between Sync and Desktop Commander. Sync uses a separate network. MCP has no Docker socket and mounts only the vault, its own state, and its gateway-key file. cloudflared mounts only its connector token. Runtime tokens are not included in the build context. Shell tools are intentionally enabled; the directory allowlist applies to file tools, not a shell sandbox.
+Desktop Commander mounts the vault, its own state, and a read-only gateway-key file. It has no Docker socket or Sync credential mount. Its file-tool allowlist starts at `/vault`; terminal tools can access the MCP container's filesystem, including its gateway key. The allowlist is not a shell sandbox. Authenticated clients should be trusted for the tools exposed to them.
 
-Desktop Commander installation scripts are skipped and system ripgrep is supplied. `DESKTOP_COMMANDER_DISABLE_TELEMETRY=1` disables analytics independently of persisted configuration; initial config also disables telemetry. Local tool history and Docker logs can contain tool arguments, base64 data, and command output and should be treated as private.
+The gateway requires bearer authentication at `/mcp` before processing requests. `/healthz` is unauthenticated and reports availability. The default stack publishes no host ports. Cloudflare Tunnel mounts only its connector token; routing and any aggregator's client authorization or tool filtering are configured outside the stack. Direct clients must supply the gateway token and receive all advertised tools unless the server configuration is changed.
 
-A checked build-time patch removes Desktop Commander's automatic Chrome download on MCP initialization. Native PDF generation retains its upstream on-demand browser path; byte-for-byte PDF storage through Python needs no browser.
+## Data handling
 
-The gateway's `/healthz` endpoint is intentionally unauthenticated and exposes only availability. The MCP endpoint rejects missing/wrong keys before processing a request. CI verifies real HTTP rejection and authenticated tool calls using a synthetic key file. Real Obsidian login, Sync transfer, Cloudflare policy enforcement, and NAS CPU compatibility require deployment verification.
+Desktop Commander telemetry is disabled by both environment and initial configuration. Local tool history and container logs can contain arguments, base64 attachments, and command output. Keep Commander state and logs private alongside vault data and backups.
+
+Tokens are runtime files excluded from the Docker build context. Do not commit credentials or pass them as build arguments. Give the MCP key file only the access needed by UID 1000; keep the tunnel token and Sync state private.
+
+## Builds and validation
+
+The Dockerfile pins the Node base image by digest, npm packages by lockfiles, and Supergateway by source revision. Debian packages installed during a build can change. Supergateway's pinned revision provides inbound bearer authentication. Third-party packages retain their own licenses and terms, including the official Obsidian Headless client.
+
+Desktop Commander installation scripts are skipped and system ripgrep is supplied. A checked build-time patch disables automatic Chrome download during MCP initialization. Native PDF generation retains the upstream on-demand browser path; storing existing PDF bytes through Python requires no browser.
+
+CI publishes the same AMD64 images that pass runtime tests using synthetic credentials. Tests cover HTTP authentication, file and attachment operations, credential mount isolation, and configuration persistence. Obsidian account login, live Sync transfer, external routing policies, and host compatibility require verification in the deployment environment.

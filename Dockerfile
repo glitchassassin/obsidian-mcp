@@ -25,8 +25,8 @@ WORKDIR /vault
 CMD ["/app/scripts/run-sync.sh"]
 
 FROM base AS gateway-deps
-# Published 4.1.0 lacks the repository's bearer authentication. Build the exact
-# reviewed revision; its lockfile pins the build and runtime npm dependencies.
+# Pin the gateway source revision with inbound bearer authentication.
+# Its lockfile pins the build and runtime npm dependencies.
 RUN git init /gateway \
  && cd /gateway \
  && git remote add origin https://github.com/supercorp-ai/supergateway.git \
