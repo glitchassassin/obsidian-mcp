@@ -1,0 +1,10 @@
+{
+  "allowedDirectories": ["/vault"],
+  "defaultShell": "/bin/bash",
+  "blockedCommands": ["sudo", "su", "mount", "umount", "mkfs", "fdisk", "passwd", "useradd", "usermod"],
+  "telemetryEnabled": false,
+  "fileReadLineLimit": 1000,
+  "fileWriteLineLimit": 1000,
+  "pendingWelcomeOnboarding": false,
+  "welcomeOnboardingEligible": false
+}

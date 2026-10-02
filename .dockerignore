@@ -1,0 +1,12 @@
+**
+!Dockerfile
+!images/
+!images/**
+!config/
+!config/**
+!scripts/
+!scripts/run-sync.sh
+!scripts/smoke-test.mjs
+!scripts/disable-chrome-prefetch.mjs
+!scripts/seed-commander.mjs
+!scripts/run-mcp.sh

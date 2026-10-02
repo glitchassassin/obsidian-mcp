@@ -1,0 +1,4 @@
+# Download the chosen release's compose.yaml into this dataset first.
+include:
+  - path: /mnt/tank/apps/obsidian-mcp/compose.yaml
+    env_file: /mnt/tank/apps/obsidian-mcp/app.env
