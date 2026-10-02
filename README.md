@@ -33,11 +33,11 @@ flowchart LR
     Sync <--> Remote[Obsidian Sync]
 ```
 
-Only the vault is shared between Sync and Desktop Commander. Each service keeps its own state and credentials. Sync runs on a separate network from the MCP service and tunnel connector.
+Docker creates the vault and private state as named volumes automatically. Only the vault is shared between Sync and Desktop Commander. Each service keeps its own state and credentials. Sync runs on a separate network from the MCP service and tunnel connector.
 
 ## Adaptation points
 
-- **Hosting:** you can run the same Compose stack on another Docker host. Set `OBSIDIAN_MCP_DATA_DIR` to an absolute storage path and arrange permissions, backups, and service management there. The TrueNAS include files are deployment helpers.
+- **Hosting:** you can run the same Compose stack on another Docker host. Docker creates the data volumes for you. Supply the token files and arrange backups and service management on your host. The TrueNAS include files are deployment helpers.
 - **Aggregation:** you can replace MCP Portal with another aggregator that supports Streamable HTTP and the gateway's bearer token. Tool filtering and client access policy belong to that aggregator.
 - **Direct access:** you can connect a compatible MCP client directly to the gateway through a configured tunnel route or reverse proxy. Supply the bearer token in the `Authorization` header. Without an aggregator, your authenticated client can use every tool Desktop Commander advertises. To omit Cloudflare entirely, remove `cloudflared` and provide your own route to the gateway; the default Compose file has no published port.
 
@@ -45,7 +45,7 @@ These choices leave the shared-vault arrangement intact. This repository keeps c
 
 ## Deployment and tools
 
-See the [deployment guide](deploy/README.md) for storage layout, TrueNAS installation, Obsidian authentication, and tunnel/Portal configuration. You'll find the non-secret settings in [.env.example](.env.example).
+See the [deployment guide](deploy/README.md) for token provisioning, TrueNAS installation, Obsidian authentication, and tunnel/Portal configuration. You'll find the non-secret settings in [.env.example](.env.example).
 
 With Desktop Commander, you can read and write notes, search their contents, and store attachments. Use `write_file` to write supported image formats from base64, or `start_process` with Python or curl to store PDFs and arbitrary binary files. The gateway accepts JSON bodies up to 4 MiB. Terminal tools give access to the MCP container, so choose which tools your clients can use as part of your access policy. See [SECURITY.md](SECURITY.md) for credential boundaries and logging behavior.
 
@@ -56,7 +56,7 @@ You can pull these public images:
 - `ghcr.io/glitchassassin/obsidian-mcp-sync`
 - `ghcr.io/glitchassassin/obsidian-mcp-desktop-commander`
 
-GitHub Actions builds and tests `linux/amd64` images before publishing those same images. Main pushes update `latest`; every published build receives a `sha-<full-commit>` tag; release tags such as `v0.1.2` produce matching image tags. Pull requests build and test without publishing. Use image digests when you need immutable references. You can build for other architectures locally.
+GitHub Actions builds and tests `linux/amd64` images before publishing those same images. Main pushes update `latest`; every published build receives a `sha-<full-commit>` tag; release tags such as `v0.2.0` produce matching image tags. Pull requests build and test without publishing. Use image digests when you need immutable references. You can build for other architectures locally.
 
 ```sh
 docker build --target sync -t obsidian-mcp-test-sync:local .
@@ -66,6 +66,6 @@ OBSIDIAN_MCP_COMMANDER_IMAGE=obsidian-mcp-test-commander:local \
   scripts/ci-test.sh
 ```
 
-Tests use disposable storage and synthetic credentials. They cover gateway authentication, file/search tools, exact-byte attachment writes, credential isolation, configuration persistence, and native SQLite loading. You'll need to verify live Sync transfers and external routing in your deployment. On macOS/Colima, use `TMPDIR=/private/tmp` if Docker cannot mount the default temporary directory.
+Tests use disposable storage and synthetic credentials. They cover gateway authentication, file/search tools, exact-byte attachment writes, credential isolation, named-volume initialization and persistence through container recreation, and native SQLite loading. You'll need to verify live Sync transfers and external routing in your deployment. On macOS/Colima, use `TMPDIR=/private/tmp` if Docker cannot mount the default temporary directory.
 
 The repository's scripts and configuration use the [MIT license](LICENSE). Bundled third-party software retains its own licenses and terms.

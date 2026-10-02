@@ -1,4 +1,4 @@
-# Download the chosen release's compose.yaml into this dataset first.
+# Download the chosen release's compose.yaml here first.
+# Data volumes are automatic; provide the host token files declared in Compose.
 include:
-  - path: /mnt/tank/apps/obsidian-mcp/compose.yaml
-    env_file: /mnt/tank/apps/obsidian-mcp/app.env
+  - /mnt/tank/apps/obsidian-mcp/compose.yaml

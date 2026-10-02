@@ -5,7 +5,8 @@ RUN apt-get update \
 WORKDIR /app
 ENV HOME=/home/node
 RUN mkdir -p /vault /home/node/.config /home/node/.claude-server-commander \
- && chown -R node:node /vault /home/node
+ && chown -R node:node /vault /home/node \
+ && chmod 700 /home/node/.config /home/node/.claude-server-commander
 
 FROM base AS sync-deps
 RUN apt-get update \
