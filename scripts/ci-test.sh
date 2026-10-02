@@ -34,13 +34,11 @@ for name,value in [("secrets/mcp-token","synthetic-ci-mcp-key"),("sync-config/ob
 "${compose[@]}" up -d --wait --wait-timeout 90 sync desktop-commander
 "${compose[@]}" exec -T sync ob --version
 "${compose[@]}" exec -T sync node -e 'const DB=require("/app/node_modules/better-sqlite3"); const db=new DB(":memory:"); if(db.prepare("select 1 as result").get().result!==1)process.exit(1); db.close(); console.log("PASS: native SQLite",process.arch);'
-"${compose[@]}" logs sync | rg -q 'Waiting for vault setup'
+"${compose[@]}" logs sync | python3 -c 'import sys; sys.exit(0 if "Waiting for vault setup" in sys.stdin.read() else 1)'
 "${compose[@]}" exec -T desktop-commander node /app/scripts/smoke-test.mjs
 "${compose[@]}" exec -T desktop-commander node -e 'const fs=require("node:fs"); const p="/home/node/.claude-server-commander/config.json"; const c=JSON.parse(fs.readFileSync(p)); c.fileReadLineLimit=137; fs.writeFileSync(p,JSON.stringify(c));'
 "${compose[@]}" restart desktop-commander
 "${compose[@]}" up -d --wait --wait-timeout 90 sync desktop-commander
 "${compose[@]}" exec -T desktop-commander node -e 'const fs=require("node:fs"); const c=JSON.parse(fs.readFileSync("/home/node/.claude-server-commander/config.json")); if(c.fileReadLineLimit!==137)process.exit(1); console.log("PASS: config seeding preserves existing state after restart");'
-if "${compose[@]}" logs desktop-commander | rg -q 'Downloading Chrome'; then
-  echo 'Unexpected Chrome prefetch' >&2; exit 1
-fi
+"${compose[@]}" logs desktop-commander | python3 -c 'import sys; assert "Downloading Chrome" not in sys.stdin.read(), "Unexpected Chrome prefetch"'
 echo 'PASS: production bind mounts, key-file auth, credential isolation, file/search/binary tools, Sync waiting, and restart persistence.'

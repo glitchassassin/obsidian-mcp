@@ -9,7 +9,7 @@ GitHub Actions builds both Dockerfile targets for `linux/amd64`, the TrueNAS tar
 - `ghcr.io/glitchassassin/obsidian-mcp-sync:sha-<full-commit>`
 - `ghcr.io/glitchassassin/obsidian-mcp-desktop-commander:sha-<full-commit>`
 
-Main pushes also update `latest`. Git tags such as `v0.1.0` publish matching image tags. Pull requests build and test without publishing. Official Actions are pinned by commit; npm dependencies and the Node base image are pinned. Native ARM64 builds remain possible locally, but the publication workflow currently targets AMD64.
+Main pushes also update `latest`. Git tags such as `v0.1.1` publish matching image tags. Pull requests build and test without publishing. Official Actions are pinned by commit; npm dependencies and the Node base image are pinned. Native ARM64 builds remain possible locally, but the publication workflow currently targets AMD64.
 
 The runtime tests cover bearer rejection and authenticated initialization, file reads/writes and grep, exact-byte PNG/PDF/arbitrary binary writes, private Sync credential isolation, first-run initialization of an empty Commander bind mount, persistence through a restart, and the Sync native SQLite module. No real Obsidian or Cloudflare credentials are used in CI. Live Sync and Portal tests remain deployment checks.
 

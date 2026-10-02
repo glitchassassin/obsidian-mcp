@@ -1,5 +1,5 @@
 # Replace the release tag and local settings path before installing.
 # Requires a TrueNAS Compose version with Git remote include support.
 include:
-  - path: https://github.com/glitchassassin/obsidian-mcp.git#v0.1.0:compose.yaml
+  - path: https://github.com/glitchassassin/obsidian-mcp.git#v0.1.1:compose.yaml
     env_file: /mnt/tank/apps/obsidian-mcp/app.env
