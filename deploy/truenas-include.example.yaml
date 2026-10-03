@@ -2,4 +2,4 @@
 # To override settings, use the long include form with a local env_file.
 # Requires a TrueNAS Compose version with Git remote include support.
 include:
-  - https://github.com/glitchassassin/obsidian-mcp.git#v0.2.0:compose.yaml
+  - https://github.com/glitchassassin/obsidian-mcp.git#v0.3.0:compose.yaml

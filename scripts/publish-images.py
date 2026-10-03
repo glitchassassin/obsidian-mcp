@@ -12,7 +12,9 @@ elif os.environ['GITHUB_REF'].startswith('refs/tags/v'):
     if not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}',version): raise SystemExit('Invalid release tag')
     tags.append(version)
 for local,name in [(os.environ['OBSIDIAN_MCP_SYNC_IMAGE'],'obsidian-mcp-sync'),
-                   (os.environ['OBSIDIAN_MCP_COMMANDER_IMAGE'],'obsidian-mcp-desktop-commander')]:
+                   (os.environ['OBSIDIAN_MCP_COMMANDER_IMAGE'],'obsidian-mcp-desktop-commander'),
+                   (os.environ['OBSIDIAN_MCP_ADMIN_IMAGE'],'obsidian-mcp-admin'),
+                   (os.environ['OBSIDIAN_MCP_TUNNEL_IMAGE'],'obsidian-mcp-tunnel')]:
     image=f'ghcr.io/{owner}/{name}'
     for tag in tags:
         reference=f'{image}:{tag}'

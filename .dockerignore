@@ -10,3 +10,7 @@
 !scripts/disable-chrome-prefetch.mjs
 !scripts/seed-commander.mjs
 !scripts/run-mcp.sh
+!admin/
+!admin/**
+!scripts/supervise.mjs
+!scripts/rotation-test.mjs

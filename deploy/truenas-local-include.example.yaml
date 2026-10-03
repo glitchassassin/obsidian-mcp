@@ -1,4 +1,4 @@
 # Download the chosen release's compose.yaml here first.
-# Data volumes are automatic; provide the host token files declared in Compose.
+# Data and credentials use automatic named volumes; complete setup in the LAN admin UI.
 include:
   - /mnt/tank/apps/obsidian-mcp/compose.yaml

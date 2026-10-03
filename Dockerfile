@@ -4,9 +4,9 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV HOME=/home/node
-RUN mkdir -p /vault /home/node/.config /home/node/.claude-server-commander \
- && chown -R node:node /vault /home/node \
- && chmod 700 /home/node/.config /home/node/.claude-server-commander
+RUN mkdir -p /vault /home/node/.config /home/node/.claude-server-commander /admin-state /run/mcp-key /run/tunnel-key \
+ && chown -R node:node /vault /home/node /admin-state /run/mcp-key /run/tunnel-key \
+ && chmod 700 /home/node/.config /home/node/.claude-server-commander /admin-state /run/mcp-key /run/tunnel-key
 
 FROM base AS sync-deps
 RUN apt-get update \
@@ -19,11 +19,12 @@ RUN npm ci --omit=dev --ignore-scripts \
 
 FROM base AS sync
 COPY --from=sync-deps /app/node_modules /app/node_modules
+COPY scripts/supervise.mjs /app/scripts/supervise.mjs
 COPY --chmod=755 scripts/run-sync.sh /app/scripts/run-sync.sh
 ENV PATH=/app/node_modules/.bin:$PATH XDG_CONFIG_HOME=/home/node/.config
 USER node
 WORKDIR /vault
-CMD ["/app/scripts/run-sync.sh"]
+CMD ["node", "/app/scripts/supervise.mjs", "sync"]
 
 FROM base AS gateway-deps
 # Pin the gateway source revision with inbound bearer authentication.
@@ -49,6 +50,8 @@ COPY --from=gateway-deps /gateway/LICENSE /opt/supergateway/LICENSE
 COPY --from=gateway-deps /gateway/node_modules /opt/supergateway/node_modules
 COPY config/commander.json /app/config/commander.json
 COPY scripts/seed-commander.mjs /app/scripts/seed-commander.mjs
+COPY scripts/supervise.mjs /app/scripts/supervise.mjs
+COPY scripts/rotation-test.mjs /app/scripts/rotation-test.mjs
 COPY --chmod=755 scripts/run-mcp.sh /app/scripts/run-mcp.sh
 COPY scripts/smoke-test.mjs /app/scripts/smoke-test.mjs
 ENV PATH=/app/node_modules/.bin:$PATH \
@@ -57,4 +60,16 @@ ENV PATH=/app/node_modules/.bin:$PATH \
     NODE_ENV=production
 USER node
 WORKDIR /vault
-CMD ["/app/scripts/run-mcp.sh"]
+CMD ["node", "/app/scripts/supervise.mjs", "mcp"]
+
+FROM sync AS admin
+COPY admin /app/admin
+WORKDIR /app
+CMD ["node", "/app/admin/server.mjs"]
+
+FROM cloudflare/cloudflared:2026.9.3 AS cloudflared-binary
+FROM base AS tunnel
+COPY --from=cloudflared-binary /usr/local/bin/cloudflared /usr/local/bin/cloudflared
+COPY scripts/supervise.mjs /app/scripts/supervise.mjs
+USER node
+CMD ["node", "/app/scripts/supervise.mjs", "tunnel"]

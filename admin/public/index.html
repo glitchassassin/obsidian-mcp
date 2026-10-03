@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Obsidian MCP Admin</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<main>
+<header><div><h1>Obsidian MCP</h1><p>Private administration</p></div><button id="logout" hidden>Log out</button></header>
+<p class="notice">Keep this admin UI on your trusted LAN. Never expose it publicly or route it through Cloudflare Tunnel.</p>
+<p id="message" role="status" aria-live="polite"></p>
+<section id="access" hidden><h2 id="access-title">Admin access</h2><form id="access-form"><label>Admin password<input name="password" type="password" autocomplete="current-password" maxlength="256" required></label><p id="password-help"></p><button id="access-submit">Log in</button></form></section>
+<div id="settings" hidden>
+<p id="setup-status"></p>
+<section><h2>1. Obsidian account</h2><p id="account-status"></p><form id="obsidian-form"><label>Email<input name="email" type="email" autocomplete="username" required></label><label>Password<input name="password" type="password" autocomplete="current-password" required></label><label>Two-factor code, if enabled<input name="mfa" autocomplete="one-time-code" inputmode="numeric"></label><button id="obsidian-submit">Log into Obsidian</button></form></section>
+<section><h2>2. Sync vault</h2><p id="vault-status"></p><div id="vault-setup"><button id="load-vaults">Load your vaults</button><form id="vault-form" hidden><label>Vault<select name="id" required></select></label><label>Vault encryption password<input name="password" type="password" autocomplete="off"></label><p>Leave the encryption password empty for a vault using standard encryption. Selecting a vault locks this deployment to that account and vault.</p><button>Use this vault</button></form></div></section>
+<section><h2>3. MCP key</h2><p id="key-status"></p><button id="generate-key">Generate key</button><div id="key-result" hidden><p>Copy this key into MCP Portal or your client's bearer credential. You'll only see it here once. If you lose it, generate a replacement.</p><label>New MCP key<input id="new-key" readonly autocomplete="off"></label><button id="dismiss-key">I've saved the key</button></div></section>
+<section id="tunnel"><h2>4. Cloudflare Tunnel</h2><p id="tunnel-status"></p><form id="tunnel-form"><label>Connector token<input name="token" type="password" autocomplete="off" maxlength="4096" required></label><button>Save tunnel token</button></form><p>Configure the tunnel's MCP route to <code>http://obsidian-mcp.internal:8000/mcp</code>. Never route it to the admin service.</p></section>
+<section id="finish"><h2>5. Finish setup</h2><p>This starts Sync, the MCP gateway, and the tunnel. Allow the initial vault download to finish before using MCP.</p><button id="initialize">Finish setup</button></section>
+</div>
+</main>
+</body></html>
